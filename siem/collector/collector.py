@@ -1,10 +1,11 @@
 import subprocess  # Allows Python to start and communicate with journalctl.
 
 
-# Command used to follow new events from the systemd journal.
 JOURNAL_COMMAND = [
     "journalctl",
     "-f",
+    "-n",
+    "0",
     "-o",
     "json",
 ]
@@ -15,8 +16,8 @@ def collect_events():
         # Start journalctl as a child process.
         process = subprocess.Popen(
             JOURNAL_COMMAND,
-            stdout=subprocess.PIPE,  # Sends journalctl output into Python.
-            text=True,  # Makes the output available as strings.
+            stdout=subprocess.PIPE,
+            text=True,
         )
 
     except FileNotFoundError:
@@ -37,7 +38,7 @@ def collect_events():
     try:
         # Continuously read events produced by journalctl.
         for line in process.stdout:
-            print(line.strip())  # Display the raw event for testing.
+            yield line.strip()
 
         # Check whether journalctl stopped unexpectedly.
         if process.poll() is not None:
@@ -53,6 +54,7 @@ def collect_events():
             process.terminate()
 
 
-# Start the collector when this file is executed directly.
+# Test the collector when this file is executed directly.
 if __name__ == "__main__":
-    collect_events()
+    for event in collect_events():
+        print(event)

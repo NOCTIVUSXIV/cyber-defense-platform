@@ -1,25 +1,28 @@
-from parser.parser import parse_event  # Imports the parser function.
+from collector.collector import collect_events  # Imports the log collector.
+from parser.parser import parse_event  # Imports the event parser.
 from database.database import create_database, insert_event  # Imports database functions.
 
 
-def process_event(raw_event):
-    # Convert the raw JSON event into a normalized event.
-    parsed_event = parse_event(raw_event)
-
-    # Stop processing if the parser rejected the event.
-    if parsed_event is None:
-        return
-
-    # Store the normalized event in the database.
-    insert_event(parsed_event)
-
-    print("Event stored successfully.")
-
-
-# Test the pipeline when this file is executed directly.
-if __name__ == "__main__":
+def process_events():
+    # Make sure the database and events table exist.
     create_database()
 
-    test_event = '{"MESSAGE":"SIEM pipeline test","PRIORITY":"5","_PID":"50000","_HOSTNAME":"pranav-arch","_COMM":"pipeline","SYSLOG_IDENTIFIER":"siem","__REALTIME_TIMESTAMP":"1789306812868670"}'
+    # Continuously receive raw events from the collector.
+    for raw_event in collect_events():
+        # Convert the raw JSON event into a normalized event.
+        parsed_event = parse_event(raw_event)
 
-    process_event(test_event)
+        # Skip the event if parsing failed.
+        if parsed_event is None:
+            continue
+
+        # Store the normalized event in the database.
+        insert_event(parsed_event)
+
+        # Confirm that the event reached the database.
+        print("Event stored successfully.")
+
+
+# Start the SIEM pipeline when this file is executed directly.
+if __name__ == "__main__":
+    process_events()
