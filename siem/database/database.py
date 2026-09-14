@@ -25,6 +25,18 @@ def create_database():
         )
     """)
 
+    # Create the alerts table if it does not already exist.
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            rule TEXT,
+            severity TEXT,
+            message TEXT,
+            hostname TEXT,
+            process TEXT
+        )
+    """)
+
     # Save the database changes.
     connection.commit()
 
@@ -39,7 +51,7 @@ def insert_event(event):
     # Create a cursor for executing SQL commands.
     cursor = connection.cursor()
 
-    # Insert the normalized event into the events table.
+    # Insert the normalized event into the database.
     cursor.execute("""
         INSERT INTO events (
             timestamp,
@@ -62,6 +74,39 @@ def insert_event(event):
     ))
 
     # Save the inserted event.
+    connection.commit()
+
+    # Close the database connection.
+    connection.close()
+
+
+# Store a detected alert in the database.
+def insert_alert(alert):
+    # Open the existing SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Insert the alert into the alerts table.
+    cursor.execute("""
+        INSERT INTO alerts (
+            rule,
+            severity,
+            message,
+            hostname,
+            process
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        alert.get("rule"),
+        alert.get("severity"),
+        alert.get("message"),
+        alert.get("hostname"),
+        alert.get("process"),
+    ))
+
+    # Save the inserted alert.
     connection.commit()
 
     # Close the database connection.
