@@ -18,6 +18,27 @@ def detect_high_priority(event):
             "message": event.get("message"),
             "hostname": event.get("hostname"),
             "process": event.get("process"),
+            "event_timestamp": event.get("timestamp"),
+        }
+
+    return None
+
+
+# Detect failed sudo authentication attempts.
+def detect_failed_sudo(event):
+    message = event.get("message")
+
+    if message is None:
+        return None
+
+    if "authentication failure" in message.lower():
+        return {
+            "rule": "FAILED_SUDO_AUTHENTICATION",
+            "severity": "HIGH",
+            "message": message,
+            "hostname": event.get("hostname"),
+            "process": event.get("process"),
+            "event_timestamp": event.get("timestamp"),
         }
 
     return None
@@ -26,6 +47,7 @@ def detect_high_priority(event):
 # List all detection rules used by the engine.
 DETECTION_RULES = [
     detect_high_priority,
+    detect_failed_sudo,
 ]
 
 
@@ -40,3 +62,18 @@ def detect_event(event):
             alerts.append(alert)
 
     return alerts
+
+
+# Test the detection engine when this file is executed directly.
+if __name__ == "__main__":
+    test_event = {
+        "timestamp": "2026-09-15T06:46:13.978399+00:00",
+        "severity": "5",
+        "message": "pam_unix(sudo:auth): authentication failure",
+        "hostname": "pranav-arch",
+        "process": "sudo",
+    }
+
+    alerts = detect_event(test_event)
+
+    print(alerts)

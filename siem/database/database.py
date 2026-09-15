@@ -29,6 +29,8 @@ def create_database():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_timestamp TEXT,
+            alert_timestamp TEXT,
             rule TEXT,
             severity TEXT,
             message TEXT,
@@ -88,17 +90,21 @@ def insert_alert(alert):
     # Create a cursor for executing SQL commands.
     cursor = connection.cursor()
 
-    # Insert the alert into the alerts table.
+    # Insert the alert and its timestamps into the database.
     cursor.execute("""
         INSERT INTO alerts (
+            event_timestamp,
+            alert_timestamp,
             rule,
             severity,
             message,
             hostname,
             process
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
+        alert.get("event_timestamp"),
+        alert.get("alert_timestamp"),
         alert.get("rule"),
         alert.get("severity"),
         alert.get("message"),
