@@ -35,7 +35,8 @@ def create_database():
             severity TEXT,
             message TEXT,
             hostname TEXT,
-            process TEXT
+            process TEXT,
+            fingerprint TEXT
         )
     """)
 
@@ -90,7 +91,7 @@ def insert_alert(alert):
     # Create a cursor for executing SQL commands.
     cursor = connection.cursor()
 
-    # Insert the alert and its timestamps into the database.
+    # Insert the alert and its metadata into the database.
     cursor.execute("""
         INSERT INTO alerts (
             event_timestamp,
@@ -99,9 +100,10 @@ def insert_alert(alert):
             severity,
             message,
             hostname,
-            process
+            process,
+            fingerprint
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         alert.get("event_timestamp"),
         alert.get("alert_timestamp"),
@@ -110,6 +112,7 @@ def insert_alert(alert):
         alert.get("message"),
         alert.get("hostname"),
         alert.get("process"),
+        alert.get("fingerprint"),
     ))
 
     # Save the inserted alert.
@@ -117,6 +120,35 @@ def insert_alert(alert):
 
     # Close the database connection.
     connection.close()
+
+
+# Check whether the same alert was created recently.
+def recent_alert_exists(fingerprint, cooldown_seconds=300):
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Find a matching fingerprint within the cooldown period.
+    cursor.execute("""
+        SELECT id
+        FROM alerts
+        WHERE fingerprint = ?
+        AND (
+            strftime('%s', 'now') -
+            strftime('%s', alert_timestamp)
+        ) <= ?
+        LIMIT 1
+    """, (fingerprint, cooldown_seconds))
+
+    # Get the matching alert if one exists.
+    result = cursor.fetchone()
+
+    # Close the database connection.
+    connection.close()
+
+    return result is not None
 
 
 def get_events():

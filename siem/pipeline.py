@@ -18,39 +18,36 @@ def process_events():
 
     # Continuously receive raw events from the collector.
     for raw_event in collect_events():
-        # Convert the raw JSON event into a normalized event.
         parsed_event = parse_event(raw_event)
 
-        # Skip the event if parsing failed.
         if parsed_event is None:
             continue
 
-        # Add the event to the recent event history.
         event_history.append(parsed_event)
-
-        # Store the normalized event in the database.
         insert_event(parsed_event)
 
-        # Run single-event detection rules.
         detections = detect_event(parsed_event)
 
-        # Create and store an alert for every single-event detection.
         for detection in detections:
             alert = create_alert(detection)
-            print(f"ALERT: {alert}")
 
-        # Run correlation rules against recent events.
+            if alert is not None:
+                print(f"ALERT CREATED: {alert}")
+            else:
+                print("ALERT SUPPRESSED: duplicate within cooldown.")
+
         correlations = detect_correlations(event_history)
 
-        # Create and store an alert for every correlation detection.
         for correlation in correlations:
             alert = create_alert(correlation)
-            print(f"CORRELATION ALERT: {alert}")
 
-        # Confirm that the event reached the database.
+            if alert is not None:
+                print(f"CORRELATION ALERT CREATED: {alert}")
+            else:
+                print("CORRELATION ALERT SUPPRESSED: duplicate within cooldown.")
+
         print("Event stored successfully.")
 
 
-# Start the SIEM pipeline when this file is executed directly.
 if __name__ == "__main__":
     process_events()
