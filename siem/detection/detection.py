@@ -1,3 +1,6 @@
+from datetime import datetime  # Provides timestamp handling.
+
+
 # Detect events with a high system priority.
 def detect_high_priority(event):
     severity = event.get("severity")
@@ -24,7 +27,7 @@ def detect_high_priority(event):
     return None
 
 
-# Detect failed sudo authentication attempts.
+# Detect a failed sudo authentication attempt.
 def detect_failed_sudo(event):
     message = event.get("message")
 
@@ -44,14 +47,58 @@ def detect_failed_sudo(event):
     return None
 
 
-# List all detection rules used by the engine.
+# Detect three or more failed sudo authentications within five minutes.
+def detect_repeated_failed_sudo(event_history):
+    failed_events = []
+
+    for event in event_history:
+        message = event.get("message")
+        timestamp = event.get("timestamp")
+
+        if message and "authentication failure" in message.lower():
+            if timestamp:
+                try:
+                    event_time = datetime.fromisoformat(timestamp)
+
+                except ValueError:
+                    continue
+
+                failed_events.append((event_time, event))
+
+    if len(failed_events) < 3:
+        return None
+
+    latest_time, latest_event = failed_events[-1]
+
+    recent_failures = []
+
+    for event_time, event in failed_events:
+        time_difference = latest_time - event_time
+
+        if 0 <= time_difference.total_seconds() <= 300:
+            recent_failures.append(event)
+
+    if len(recent_failures) >= 3:
+        return {
+            "rule": "REPEATED_FAILED_SUDO",
+            "severity": "CRITICAL",
+            "message": f"{len(recent_failures)} failed sudo authentication attempts within 5 minutes",
+            "hostname": latest_event.get("hostname"),
+            "process": latest_event.get("process"),
+            "event_timestamp": latest_event.get("timestamp"),
+        }
+
+    return None
+
+
+# List single-event detection rules.
 DETECTION_RULES = [
     detect_high_priority,
     detect_failed_sudo,
 ]
 
 
-# Run every detection rule against an event.
+# Run single-event detection rules against an event.
 def detect_event(event):
     alerts = []
 
@@ -64,16 +111,44 @@ def detect_event(event):
     return alerts
 
 
+# Run history-based correlation rules against multiple events.
+def detect_correlations(event_history):
+    alerts = []
+
+    alert = detect_repeated_failed_sudo(event_history)
+
+    if alert is not None:
+        alerts.append(alert)
+
+    return alerts
+
+
 # Test the detection engine when this file is executed directly.
 if __name__ == "__main__":
-    test_event = {
-        "timestamp": "2026-09-15T06:46:13.978399+00:00",
-        "severity": "5",
-        "message": "pam_unix(sudo:auth): authentication failure",
-        "hostname": "pranav-arch",
-        "process": "sudo",
-    }
+    test_events = [
+        {
+            "timestamp": "2026-09-17T00:00:00+00:00",
+            "severity": "5",
+            "message": "pam_unix(sudo:auth): authentication failure",
+            "hostname": "pranav-arch",
+            "process": "sudo",
+        },
+        {
+            "timestamp": "2026-09-17T00:02:00+00:00",
+            "severity": "5",
+            "message": "pam_unix(sudo:auth): authentication failure",
+            "hostname": "pranav-arch",
+            "process": "sudo",
+        },
+        {
+            "timestamp": "2026-09-17T00:04:00+00:00",
+            "severity": "5",
+            "message": "pam_unix(sudo:auth): authentication failure",
+            "hostname": "pranav-arch",
+            "process": "sudo",
+        },
+    ]
 
-    alerts = detect_event(test_event)
+    alerts = detect_correlations(test_events)
 
     print(alerts)
