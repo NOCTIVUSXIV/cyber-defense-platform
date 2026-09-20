@@ -83,7 +83,6 @@ def insert_event(event):
     connection.close()
 
 
-# Store a detected alert in the database.
 def insert_alert(alert):
     # Open the existing SIEM database.
     connection = sqlite3.connect(DATABASE_PATH)
@@ -122,7 +121,6 @@ def insert_alert(alert):
     connection.close()
 
 
-# Check whether the same alert was created recently.
 def recent_alert_exists(fingerprint, cooldown_seconds=300):
     # Open the SIEM database.
     connection = sqlite3.connect(DATABASE_PATH)
@@ -151,122 +149,6 @@ def recent_alert_exists(fingerprint, cooldown_seconds=300):
     return result is not None
 
 
-# Retrieve the most recent events.
-def get_recent_events(limit=50):
-    # Open the SIEM database.
-    connection = sqlite3.connect(DATABASE_PATH)
-
-    # Return database rows using column names.
-    connection.row_factory = sqlite3.Row
-
-    # Create a cursor for executing SQL commands.
-    cursor = connection.cursor()
-
-    # Retrieve the newest events first.
-    cursor.execute("""
-        SELECT *
-        FROM events
-        ORDER BY id DESC
-        LIMIT ?
-    """, (limit,))
-
-    # Convert database rows into dictionaries.
-    events = [dict(event) for event in cursor.fetchall()]
-
-    # Close the database connection.
-    connection.close()
-
-    return events
-
-
-# Retrieve the most recent alerts.
-def get_recent_alerts(limit=50):
-    # Open the SIEM database.
-    connection = sqlite3.connect(DATABASE_PATH)
-
-    # Return database rows using column names.
-    connection.row_factory = sqlite3.Row
-
-    # Create a cursor for executing SQL commands.
-    cursor = connection.cursor()
-
-    # Retrieve the newest alerts first.
-    cursor.execute("""
-        SELECT *
-        FROM alerts
-        ORDER BY id DESC
-        LIMIT ?
-    """, (limit,))
-
-    # Convert database rows into dictionaries.
-    alerts = [dict(alert) for alert in cursor.fetchall()]
-
-    # Close the database connection.
-    connection.close()
-
-    return alerts
-
-
-# Retrieve alerts matching a specific severity.
-def get_alerts_by_severity(severity, limit=50):
-    # Open the SIEM database.
-    connection = sqlite3.connect(DATABASE_PATH)
-
-    # Return database rows using column names.
-    connection.row_factory = sqlite3.Row
-
-    # Create a cursor for executing SQL commands.
-    cursor = connection.cursor()
-
-    # Retrieve alerts with the requested severity.
-    cursor.execute("""
-        SELECT *
-        FROM alerts
-        WHERE severity = ?
-        ORDER BY id DESC
-        LIMIT ?
-    """, (severity, limit))
-
-    # Convert database rows into dictionaries.
-    alerts = [dict(alert) for alert in cursor.fetchall()]
-
-    # Close the database connection.
-    connection.close()
-
-    return alerts
-
-
-# Count events grouped by severity.
-def get_event_counts():
-    # Open the SIEM database.
-    connection = sqlite3.connect(DATABASE_PATH)
-
-    # Create a cursor for executing SQL commands.
-    cursor = connection.cursor()
-
-    # Count events for each severity value.
-    cursor.execute("""
-        SELECT severity, COUNT(*)
-        FROM events
-        GROUP BY severity
-        ORDER BY COUNT(*) DESC
-    """)
-
-    # Convert the query results into dictionaries.
-    counts = [
-        {
-            "severity": row[0],
-            "count": row[1],
-        }
-        for row in cursor.fetchall()
-    ]
-
-    # Close the database connection.
-    connection.close()
-
-    return counts
-
-
 def get_events():
     # Open the SIEM database.
     connection = sqlite3.connect(DATABASE_PATH)
@@ -292,6 +174,148 @@ def get_events():
     return events
 
 
+def get_recent_events(limit=50):
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Return database rows using column names.
+    connection.row_factory = sqlite3.Row
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Retrieve the most recent events.
+    cursor.execute("""
+        SELECT *
+        FROM events
+        ORDER BY id DESC
+        LIMIT ?
+    """, (limit,))
+
+    # Convert database rows into dictionaries.
+    events = [dict(event) for event in cursor.fetchall()]
+
+    # Close the database connection.
+    connection.close()
+
+    return events
+
+
+def get_recent_alerts(limit=50):
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Return database rows using column names.
+    connection.row_factory = sqlite3.Row
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Retrieve the most recent alerts.
+    cursor.execute("""
+        SELECT *
+        FROM alerts
+        ORDER BY id DESC
+        LIMIT ?
+    """, (limit,))
+
+    # Convert database rows into dictionaries.
+    alerts = [dict(alert) for alert in cursor.fetchall()]
+
+    # Close the database connection.
+    connection.close()
+
+    return alerts
+
+
+def get_alerts_by_severity(severity, limit=50):
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Return database rows using column names.
+    connection.row_factory = sqlite3.Row
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Retrieve alerts matching the requested severity.
+    cursor.execute("""
+        SELECT *
+        FROM alerts
+        WHERE severity = ?
+        ORDER BY id DESC
+        LIMIT ?
+    """, (severity, limit))
+
+    # Convert database rows into dictionaries.
+    alerts = [dict(alert) for alert in cursor.fetchall()]
+
+    # Close the database connection.
+    connection.close()
+
+    return alerts
+
+
+def get_event_counts():
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Count events grouped by severity.
+    cursor.execute("""
+        SELECT severity, COUNT(*)
+        FROM events
+        GROUP BY severity
+        ORDER BY COUNT(*) DESC
+    """)
+
+    # Convert database results into dictionaries.
+    counts = [
+        {
+            "severity": row[0],
+            "count": row[1],
+        }
+        for row in cursor.fetchall()
+    ]
+
+    # Close the database connection.
+    connection.close()
+
+    return counts
+
+
+def get_alert_counts():
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Count alerts grouped by severity.
+    cursor.execute("""
+        SELECT severity, COUNT(*)
+        FROM alerts
+        GROUP BY severity
+        ORDER BY COUNT(*) DESC
+    """)
+
+    # Convert database results into dictionaries.
+    counts = [
+        {
+            "severity": row[0],
+            "count": row[1],
+        }
+        for row in cursor.fetchall()
+    ]
+
+    # Close the database connection.
+    connection.close()
+
+    return counts
+
+
 # Test database functions when this file is executed directly.
 if __name__ == "__main__":
     create_database()
@@ -300,3 +324,4 @@ if __name__ == "__main__":
     print(f"Recent alerts: {len(get_recent_alerts())}")
     print(f"High alerts: {len(get_alerts_by_severity('HIGH'))}")
     print(f"Event counts: {get_event_counts()}")
+    print(f"Alert counts: {get_alert_counts()}")
