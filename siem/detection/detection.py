@@ -113,6 +113,54 @@ def detect_repeated_failed_sudo(event_history):
     return None
 
 
+# Detect three or more failed SSH authentications within five minutes.
+def detect_repeated_failed_ssh(event_history):
+    failed_events = []
+
+    for event in event_history:
+        message = event.get("message")
+        timestamp = event.get("timestamp")
+
+        if message is None or timestamp is None:
+            continue
+
+        message_lower = message.lower()
+
+        if "sshd" in message_lower and "failed password" in message_lower:
+            try:
+                event_time = datetime.fromisoformat(timestamp)
+
+            except ValueError:
+                continue
+
+            failed_events.append((event_time, event))
+
+    if len(failed_events) < 3:
+        return None
+
+    latest_time, latest_event = failed_events[-1]
+
+    recent_failures = []
+
+    for event_time, event in failed_events:
+        time_difference = latest_time - event_time
+
+        if 0 <= time_difference.total_seconds() <= 300:
+            recent_failures.append(event)
+
+    if len(recent_failures) >= 3:
+        return {
+            "rule": "REPEATED_FAILED_SSH",
+            "severity": "CRITICAL",
+            "message": f"{len(recent_failures)} failed SSH authentication attempts within 5 minutes",
+            "hostname": latest_event.get("hostname"),
+            "process": latest_event.get("process"),
+            "event_timestamp": latest_event.get("timestamp"),
+        }
+
+    return None
+
+
 # List single-event detection rules.
 DETECTION_RULES = [
     detect_high_priority,
@@ -138,10 +186,15 @@ def detect_event(event):
 def detect_correlations(event_history):
     alerts = []
 
-    alert = detect_repeated_failed_sudo(event_history)
+    sudo_alert = detect_repeated_failed_sudo(event_history)
 
-    if alert is not None:
-        alerts.append(alert)
+    if sudo_alert is not None:
+        alerts.append(sudo_alert)
+
+    ssh_alert = detect_repeated_failed_ssh(event_history)
+
+    if ssh_alert is not None:
+        alerts.append(ssh_alert)
 
     return alerts
 
@@ -152,23 +205,23 @@ if __name__ == "__main__":
         {
             "timestamp": "2026-09-17T00:00:00+00:00",
             "severity": "5",
-            "message": "pam_unix(sudo:auth): authentication failure",
+            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
             "hostname": "pranav-arch",
-            "process": "sudo",
+            "process": "sshd",
         },
         {
             "timestamp": "2026-09-17T00:02:00+00:00",
             "severity": "5",
-            "message": "pam_unix(sudo:auth): authentication failure",
+            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
             "hostname": "pranav-arch",
-            "process": "sudo",
+            "process": "sshd",
         },
         {
             "timestamp": "2026-09-17T00:04:00+00:00",
             "severity": "5",
-            "message": "pam_unix(sudo:auth): authentication failure",
+            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
             "hostname": "pranav-arch",
-            "process": "sudo",
+            "process": "sshd",
         },
     ]
 
