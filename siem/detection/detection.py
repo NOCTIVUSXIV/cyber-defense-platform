@@ -47,6 +47,28 @@ def detect_failed_sudo(event):
     return None
 
 
+# Detect a failed SSH authentication attempt.
+def detect_failed_ssh(event):
+    message = event.get("message")
+
+    if message is None:
+        return None
+
+    message_lower = message.lower()
+
+    if "sshd" in message_lower and "failed password" in message_lower:
+        return {
+            "rule": "FAILED_SSH_AUTHENTICATION",
+            "severity": "HIGH",
+            "message": message,
+            "hostname": event.get("hostname"),
+            "process": event.get("process"),
+            "event_timestamp": event.get("timestamp"),
+        }
+
+    return None
+
+
 # Detect three or more failed sudo authentications within five minutes.
 def detect_repeated_failed_sudo(event_history):
     failed_events = []
@@ -95,6 +117,7 @@ def detect_repeated_failed_sudo(event_history):
 DETECTION_RULES = [
     detect_high_priority,
     detect_failed_sudo,
+    detect_failed_ssh,
 ]
 
 
