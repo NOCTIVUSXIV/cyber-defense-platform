@@ -1,0 +1,298 @@
+/* Define the dashboard color variables. */
+:root {
+    --background: #0b0f14;
+    --panel: #111820;
+    --panel-hover: #151f29;
+    --border: #263340;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --critical: #ff4d5a;
+    --high: #ff9f43;
+    --medium: #f6c945;
+    --low: #4db6ff;
+    --accent: #42d3a5;
+}
+
+
+/* Remove default browser spacing. */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Set the main dashboard appearance. */
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+}
+
+
+/* Create the main dashboard container. */
+.dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+
+/* Style the dashboard header. */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+
+/* Style the platform title. */
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+
+/* Style the dashboard subtitle. */
+.header p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* Show the API status. */
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+
+/* Create the online status indicator. */
+.status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+
+/* Create the statistics card grid. */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+
+/* Style each statistics card. */
+.stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    transition: background 0.2s ease;
+}
+
+
+/* Add a subtle hover effect. */
+.stat-card:hover {
+    background: var(--panel-hover);
+}
+
+
+/* Style the card labels. */
+.stat-card h2 {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+}
+
+
+/* Style the card numbers. */
+.stat-number {
+    font-size: 34px;
+    font-weight: 700;
+}
+
+
+/* Highlight critical statistics. */
+.critical-number {
+    color: var(--critical);
+}
+
+
+/* Style dashboard sections. */
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+
+/* Style section headers. */
+.panel-header {
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* Style section titles. */
+.panel-header h2 {
+    font-size: 17px;
+}
+
+
+/* Style section descriptions. */
+.panel-header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+
+/* Allow the alert table to scroll horizontally. */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+
+/* Style the alert table. */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+/* Style table headers. */
+th {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* Style table cells. */
+td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: top;
+}
+
+
+/* Remove the border from the final row. */
+tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Add a subtle row hover effect. */
+tbody tr:hover {
+    background: var(--panel-hover);
+}
+
+
+/* Create the severity badge. */
+.severity {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+
+/* Style critical alerts. */
+.severity-critical {
+    background: rgba(255, 77, 90, 0.14);
+    color: var(--critical);
+    border: 1px solid rgba(255, 77, 90, 0.3);
+}
+
+
+/* Style high alerts. */
+.severity-high {
+    background: rgba(255, 159, 67, 0.14);
+    color: var(--high);
+    border: 1px solid rgba(255, 159, 67, 0.3);
+}
+
+
+/* Style medium alerts. */
+.severity-medium {
+    background: rgba(246, 201, 69, 0.14);
+    color: var(--medium);
+    border: 1px solid rgba(246, 201, 69, 0.3);
+}
+
+
+/* Style low alerts. */
+.severity-low {
+    background: rgba(77, 182, 255, 0.14);
+    color: var(--low);
+    border: 1px solid rgba(77, 182, 255, 0.3);
+}
+
+
+/* Style alert rule names. */
+.rule {
+    font-weight: 600;
+}
+
+
+/* Style alert messages. */
+.message {
+    color: var(--muted);
+    max-width: 420px;
+}
+
+
+/* Style timestamps and host information. */
+.metadata {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+
+/* Show a message when there are no alerts. */
+.empty-state {
+    padding: 30px;
+    color: var(--muted);
+    text-align: center;
+}
+
+
+/* Adjust the layout for smaller screens. */
+@media (max-width: 800px) {
+    .dashboard {
+        padding: 18px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+    }
+}

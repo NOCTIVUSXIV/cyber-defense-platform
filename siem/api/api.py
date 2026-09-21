@@ -1,4 +1,5 @@
 from fastapi import FastAPI  # Imports the FastAPI framework.
+from fastapi.middleware.cors import CORSMiddleware  # Allows the dashboard to access the API.
 from siem.database.database import (  # Imports SIEM database query functions.
     get_recent_events,
     get_recent_alerts,
@@ -8,6 +9,15 @@ from siem.database.database import (  # Imports SIEM database query functions.
 
 
 app = FastAPI(title="Cyber Defense Platform API")  # Creates the API application.
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
