@@ -1,20 +1,23 @@
-/* Define the dashboard color variables. */
+/* Define the main dashboard colors. */
 :root {
-    --background: #0b0f14;
-    --panel: #111820;
-    --panel-hover: #151f29;
-    --border: #263340;
+    --background: #090d12;
+    --panel: #10161d;
+    --panel-hover: #151d26;
+    --border: #26323e;
+
     --text: #e6edf3;
-    --muted: #8b98a5;
+    --muted: #8996a3;
+
     --critical: #ff4d5a;
     --high: #ff9f43;
     --medium: #f6c945;
     --low: #4db6ff;
+
     --accent: #42d3a5;
 }
 
 
-/* Remove default browser spacing. */
+/* Reset default browser spacing and sizing. */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -22,7 +25,7 @@
 }
 
 
-/* Set the main dashboard appearance. */
+/* Set the main page appearance. */
 body {
     background: var(--background);
     color: var(--text);
@@ -31,97 +34,118 @@ body {
 }
 
 
-/* Create the main dashboard container. */
+/* Center the dashboard and control its maximum width. */
 .dashboard {
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
-    padding: 32px;
+    padding: 36px;
 }
 
 
-/* Style the dashboard header. */
+/* Style the main dashboard header. */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 30px;
 }
 
 
-/* Style the platform title. */
+/* Style the main dashboard title. */
 .header h1 {
     font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     margin-bottom: 6px;
 }
 
 
-/* Style the dashboard subtitle. */
+/* Style the subtitle below the title. */
 .header p {
     color: var(--muted);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 
-/* Show the API status. */
+/* Display the SIEM status horizontally. */
 .status {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
+
     color: var(--accent);
-    font-size: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
 }
 
 
-/* Create the online status indicator. */
+/* Create the small online status indicator. */
 .status-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
+
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+
+    box-shadow: 0 0 8px rgba(66, 211, 165, 0.7);
 }
 
 
-/* Create the statistics card grid. */
+/* Create the top statistics layout. */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
+
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
 
-/* Style each statistics card. */
+/* Style the top statistic cards. */
 .stat-card {
+    position: relative;
+
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 22px;
-    transition: background 0.2s ease;
+    border-radius: 8px;
+
+    padding: 22px 24px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-/* Add a subtle hover effect. */
+/* Add a subtle hover effect to statistic cards. */
 .stat-card:hover {
     background: var(--panel-hover);
+    border-color: #344452;
+    transform: translateY(-1px);
 }
 
 
-/* Style the card labels. */
+/* Style the statistic labels. */
 .stat-card h2 {
     color: var(--muted);
-    font-size: 13px;
-    font-weight: 500;
+
+    font-size: 11px;
+    font-weight: 600;
+
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
+
     margin-bottom: 12px;
 }
 
 
-/* Style the card numbers. */
+/* Style the large statistic numbers. */
 .stat-number {
     font-size: 34px;
     font-weight: 700;
+    line-height: 1;
 }
 
 
@@ -131,168 +155,313 @@ body {
 }
 
 
-/* Style dashboard sections. */
+/* Style the main dashboard panels. */
 .panel {
     background: var(--panel);
+
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
+
     overflow: hidden;
-    margin-bottom: 24px;
+
+    margin-bottom: 20px;
 }
 
 
-/* Style section headers. */
+/* Style the title area inside panels. */
 .panel-header {
-    padding: 20px 22px;
+    padding: 18px 20px;
+
     border-bottom: 1px solid var(--border);
 }
 
 
-/* Style section titles. */
+/* Style panel titles. */
 .panel-header h2 {
-    font-size: 17px;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 
-/* Style section descriptions. */
+/* Style panel descriptions. */
 .panel-header p {
     color: var(--muted);
-    font-size: 13px;
+
+    font-size: 12px;
+
     margin-top: 5px;
 }
 
 
-/* Allow the alert table to scroll horizontally. */
+/* Create the layout for severity cards. */
+.severity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+
+    padding: 16px;
+}
+
+
+/* Style each severity summary card. */
+.severity-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 82px;
+
+    padding: 18px 20px;
+
+    background: #0d1319;
+
+    border: 1px solid var(--border);
+    border-radius: 7px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* Slightly highlight severity cards when hovered. */
+.severity-summary:hover {
+    background: var(--panel-hover);
+}
+
+
+/* Style the severity name. */
+.severity-summary span {
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* Style the severity number. */
+.severity-summary strong {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+
+/* Give critical severity its own subtle border. */
+.critical-summary {
+    border-left: 3px solid var(--critical);
+}
+
+
+/* Give critical text its color. */
+.critical-summary span,
+.critical-summary strong {
+    color: var(--critical);
+}
+
+
+/* Give high severity its own subtle border. */
+.high-summary {
+    border-left: 3px solid var(--high);
+}
+
+
+/* Give high text its color. */
+.high-summary span,
+.high-summary strong {
+    color: var(--high);
+}
+
+
+/* Allow the alert table to scroll horizontally if necessary. */
 .table-wrapper {
     overflow-x: auto;
 }
 
 
-/* Style the alert table. */
+/* Make the alert table fill the panel. */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
 
-/* Style table headers. */
+/* Style table headings. */
 th {
     color: var(--muted);
-    font-size: 12px;
+
+    background: #0d1319;
+
+    font-size: 10px;
     font-weight: 600;
+
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 14px 18px;
+
+    letter-spacing: 0.09em;
+
+    padding: 12px 16px;
+
     border-bottom: 1px solid var(--border);
 }
 
 
 /* Style table cells. */
 td {
-    padding: 16px 18px;
+    padding: 15px 16px;
+
     border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    vertical-align: top;
+
+    font-size: 12px;
+
+    vertical-align: middle;
 }
 
 
-/* Remove the border from the final row. */
+/* Remove the bottom border from the final row. */
 tr:last-child td {
     border-bottom: none;
 }
 
 
-/* Add a subtle row hover effect. */
+/* Highlight alert rows when the mouse moves over them. */
 tbody tr:hover {
     background: var(--panel-hover);
 }
 
 
-/* Create the severity badge. */
+/* Style the severity labels inside the alert table. */
 .severity {
     display: inline-block;
-    padding: 5px 9px;
-    border-radius: 5px;
-    font-size: 11px;
+
+    min-width: 62px;
+
+    padding: 5px 8px;
+
+    border-radius: 4px;
+
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+
+    text-align: center;
+
+    letter-spacing: 0.06em;
 }
 
 
-/* Style critical alerts. */
+/* Style critical alert badges. */
 .severity-critical {
-    background: rgba(255, 77, 90, 0.14);
+    background: rgba(255, 77, 90, 0.10);
+
     color: var(--critical);
-    border: 1px solid rgba(255, 77, 90, 0.3);
+
+    border: 1px solid rgba(255, 77, 90, 0.28);
 }
 
 
-/* Style high alerts. */
+/* Style high alert badges. */
 .severity-high {
-    background: rgba(255, 159, 67, 0.14);
+    background: rgba(255, 159, 67, 0.10);
+
     color: var(--high);
-    border: 1px solid rgba(255, 159, 67, 0.3);
+
+    border: 1px solid rgba(255, 159, 67, 0.28);
 }
 
 
-/* Style medium alerts. */
+/* Style medium alert badges. */
 .severity-medium {
-    background: rgba(246, 201, 69, 0.14);
+    background: rgba(246, 201, 69, 0.10);
+
     color: var(--medium);
-    border: 1px solid rgba(246, 201, 69, 0.3);
+
+    border: 1px solid rgba(246, 201, 69, 0.28);
 }
 
 
-/* Style low alerts. */
+/* Style low alert badges. */
 .severity-low {
-    background: rgba(77, 182, 255, 0.14);
+    background: rgba(77, 182, 255, 0.10);
+
     color: var(--low);
-    border: 1px solid rgba(77, 182, 255, 0.3);
+
+    border: 1px solid rgba(77, 182, 255, 0.28);
 }
 
 
-/* Style alert rule names. */
+/* Make detection rule names easier to identify. */
 .rule {
+    color: var(--text);
+
     font-weight: 600;
+
+    white-space: nowrap;
 }
 
 
 /* Style alert messages. */
 .message {
     color: var(--muted);
-    max-width: 420px;
+
+    max-width: 480px;
+
+    line-height: 1.5;
 }
 
 
-/* Style timestamps and host information. */
+/* Style host, process, and timestamp information. */
 .metadata {
     color: var(--muted);
+
     white-space: nowrap;
 }
 
 
-/* Show a message when there are no alerts. */
+/* Style loading and empty states. */
 .empty-state {
     padding: 30px;
+
     color: var(--muted);
+
     text-align: center;
 }
 
 
-/* Adjust the layout for smaller screens. */
-@media (max-width: 800px) {
+/* Adjust the dashboard for smaller screens. */
+@media (max-width: 900px) {
+
     .dashboard {
-        padding: 18px;
+        padding: 24px;
     }
 
     .stats-grid {
         grid-template-columns: 1fr;
     }
 
+    .severity-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* Adjust the header for mobile screens. */
+@media (max-width: 600px) {
+
+    .dashboard {
+        padding: 16px;
+    }
+
     .header {
         align-items: flex-start;
+
         flex-direction: column;
-        gap: 15px;
+
+        gap: 16px;
     }
+
+    .stat-number {
+        font-size: 30px;
+    }
+
 }
