@@ -191,3 +191,15 @@ loadStatistics();
 
 // Load recent SIEM alerts when the dashboard opens.
 loadAlerts();
+
+
+// Refresh dashboard data every 10 seconds.
+setInterval(() => {
+
+    // Refresh the statistics.
+    loadStatistics();
+
+    // Refresh the recent alerts.
+    loadAlerts();
+
+}, 10000);
