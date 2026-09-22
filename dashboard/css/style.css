@@ -1,23 +1,30 @@
-/* Define the main dashboard colors. */
+/* Define the dashboard color palette. */
 :root {
-    --background: #090d12;
-    --panel: #10161d;
-    --panel-hover: #151d26;
-    --border: #26323e;
+    --background: #080d14;
+    --sidebar: #0b1220;
+    --panel: #0e1724;
+    --panel-light: #111c2b;
+    --border: #203047;
+    --border-light: #263a54;
 
-    --text: #e6edf3;
-    --muted: #8996a3;
+    --text: #e7edf5;
+    --muted: #8190a5;
+    --subtle: #5d6d82;
 
-    --critical: #ff4d5a;
-    --high: #ff9f43;
-    --medium: #f6c945;
-    --low: #4db6ff;
+    --blue: #4da3ff;
+    --blue-soft: rgba(77, 163, 255, 0.12);
+
+    --critical: #ff4f64;
+    --critical-soft: rgba(255, 79, 100, 0.12);
+
+    --high: #ffab3d;
+    --high-soft: rgba(255, 171, 61, 0.12);
 
     --accent: #42d3a5;
 }
 
 
-/* Reset default browser spacing and sizing. */
+/* Reset default browser spacing. */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -25,391 +32,1147 @@
 }
 
 
+/* Enable smooth page scrolling. */
+html {
+    scroll-behavior: smooth;
+}
+
+
 /* Set the main page appearance. */
 body {
+    min-height: 100vh;
+
     background: var(--background);
     color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* Remove default link styling. */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* Main application layout. */
+.app {
+    display: flex;
     min-height: 100vh;
 }
 
 
-/* Center the dashboard and control its maximum width. */
-.dashboard {
-    max-width: 1500px;
-    margin: 0 auto;
-    padding: 36px;
-}
+/* ================================================================ */
+/* SIDEBAR */
+/* ================================================================ */
 
 
-/* Style the main dashboard header. */
-.header {
+/* Create the fixed navigation sidebar. */
+.sidebar {
+    position: fixed;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    width: 250px;
+
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+    flex-direction: column;
+
+    background: var(--sidebar);
+
+    border-right: 1px solid var(--border);
+
+    z-index: 10;
 }
 
 
-/* Style the main dashboard title. */
-.header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-}
-
-
-/* Style the subtitle below the title. */
-.header p {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-
-/* Display the SIEM status horizontally. */
-.status {
+/* Style the platform branding. */
+.brand {
     display: flex;
     align-items: center;
-    gap: 9px;
 
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-}
+    gap: 11px;
 
-
-/* Create the small online status indicator. */
-.status-dot {
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-    background: var(--accent);
-
-    box-shadow: 0 0 8px rgba(66, 211, 165, 0.7);
-}
-
-
-/* Create the top statistics layout. */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-
-/* Style the top statistic cards. */
-.stat-card {
-    position: relative;
-
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-
-    padding: 22px 24px;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
-}
-
-
-/* Add a subtle hover effect to statistic cards. */
-.stat-card:hover {
-    background: var(--panel-hover);
-    border-color: #344452;
-    transform: translateY(-1px);
-}
-
-
-/* Style the statistic labels. */
-.stat-card h2 {
-    color: var(--muted);
-
-    font-size: 11px;
-    font-weight: 600;
-
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-
-    margin-bottom: 12px;
-}
-
-
-/* Style the large statistic numbers. */
-.stat-number {
-    font-size: 34px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-
-/* Highlight critical statistics. */
-.critical-number {
-    color: var(--critical);
-}
-
-
-/* Style the main dashboard panels. */
-.panel {
-    background: var(--panel);
-
-    border: 1px solid var(--border);
-    border-radius: 8px;
-
-    overflow: hidden;
-
-    margin-bottom: 20px;
-}
-
-
-/* Style the title area inside panels. */
-.panel-header {
-    padding: 18px 20px;
+    padding: 25px 22px;
 
     border-bottom: 1px solid var(--border);
 }
 
 
-/* Style panel titles. */
-.panel-header h2 {
-    font-size: 15px;
-    font-weight: 600;
+/* Style the brand icon. */
+.brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 8px;
+
+    background: var(--blue);
+
+    color: #06101d;
+
+    font-size: 20px;
+    font-weight: 800;
 }
 
 
-/* Style panel descriptions. */
-.panel-header p {
+/* Style the brand title. */
+.brand h1 {
+    font-size: 14px;
+    font-weight: 700;
+
+    letter-spacing: -0.01em;
+}
+
+
+/* Style the brand subtitle. */
+.brand span {
+    display: block;
+
+    margin-top: 3px;
+
     color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+/* Navigation container. */
+.navigation {
+    flex: 1;
+
+    padding: 24px 12px;
+
+    overflow-y: auto;
+}
+
+
+/* Group navigation items. */
+.nav-section {
+    margin-bottom: 27px;
+}
+
+
+/* Navigation section labels. */
+.nav-label {
+    display: block;
+
+    padding: 0 12px 9px;
+
+    color: var(--subtle);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+}
+
+
+/* Individual navigation item. */
+.nav-item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    min-height: 40px;
+
+    margin-bottom: 3px;
+    padding: 0 12px;
+
+    border-radius: 6px;
+
+    color: #9aa9bc;
 
     font-size: 12px;
 
-    margin-top: 5px;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
 }
 
 
-/* Create the layout for severity cards. */
-.severity-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+/* Navigation icon. */
+.nav-icon {
+    width: 17px;
 
-    gap: 12px;
+    color: #718198;
 
+    font-size: 15px;
+
+    text-align: center;
+}
+
+
+/* Navigation hover state. */
+.nav-item:hover {
+    background: rgba(77, 163, 255, 0.06);
+
+    color: var(--text);
+}
+
+
+/* Active navigation item. */
+.nav-item.active {
+    background: rgba(77, 163, 255, 0.16);
+
+    color: #cfe5ff;
+}
+
+
+/* Active navigation indicator. */
+.nav-item.active::before {
+    position: absolute;
+
+    left: -12px;
+
+    width: 3px;
+    height: 22px;
+
+    border-radius: 0 3px 3px 0;
+
+    background: var(--blue);
+
+    content: "";
+}
+
+
+/* Navigation count badge. */
+.nav-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 20px;
+    height: 19px;
+
+    margin-left: auto;
+
+    border-radius: 10px;
+
+    background: var(--critical-soft);
+
+    color: var(--critical);
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* Disabled navigation item. */
+.nav-item.disabled {
+    cursor: default;
+
+    opacity: 0.55;
+}
+
+
+/* Coming-soon badge. */
+.coming-soon {
+    margin-left: auto;
+
+    color: var(--subtle);
+
+    font-size: 7px !important;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* Sidebar footer. */
+.sidebar-footer {
     padding: 16px;
+
+    border-top: 1px solid var(--border);
 }
 
 
-/* Style each severity summary card. */
-.severity-summary {
+/* System status container. */
+.system-status {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 11px;
+
+    border: 1px solid rgba(66, 211, 165, 0.16);
+    border-radius: 6px;
+
+    background: rgba(66, 211, 165, 0.04);
+}
+
+
+/* Green status indicator. */
+.status-dot {
+    width: 7px;
+    height: 7px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--accent);
+
+    box-shadow: 0 0 9px rgba(66, 211, 165, 0.7);
+}
+
+
+/* Status title. */
+.system-status strong {
+    display: block;
+
+    color: var(--accent);
+
+    font-size: 9px;
+
+    letter-spacing: 0.07em;
+}
+
+
+/* Status description. */
+.system-status small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--subtle);
+
+    font-size: 9px;
+}
+
+
+/* ================================================================ */
+/* MAIN CONTENT */
+/* ================================================================ */
+
+
+/* Offset the main content for the sidebar. */
+.main {
+    width: calc(100% - 250px);
+
+    margin-left: 250px;
+}
+
+
+/* Top navigation bar. */
+.topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    min-height: 82px;
+    height: 58px;
 
-    padding: 18px 20px;
+    padding: 0 30px;
 
-    background: #0d1319;
+    border-bottom: 1px solid var(--border);
 
-    border: 1px solid var(--border);
-    border-radius: 7px;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease;
+    background: rgba(8, 13, 20, 0.92);
 }
 
 
-/* Slightly highlight severity cards when hovered. */
-.severity-summary:hover {
-    background: var(--panel-hover);
-}
+/* Breadcrumb layout. */
+.breadcrumb {
+    display: flex;
+    align-items: center;
 
+    gap: 9px;
 
-/* Style the severity name. */
-.severity-summary span {
+    color: var(--muted);
+
     font-size: 11px;
+}
+
+
+/* Current breadcrumb. */
+.breadcrumb strong {
+    color: var(--text);
+}
+
+
+/* Breadcrumb separator. */
+.breadcrumb-separator {
+    color: var(--subtle);
+}
+
+
+/* Live status area. */
+.refresh-status {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--accent);
+
+    font-size: 9px;
     font-weight: 700;
 
     letter-spacing: 0.08em;
 }
 
 
-/* Style the severity number. */
-.severity-summary strong {
-    font-size: 28px;
+/* Live indicator. */
+.live-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--accent);
+
+    box-shadow: 0 0 7px rgba(66, 211, 165, 0.8);
+}
+
+
+/* Last update text. */
+.refresh-status small {
+    margin-left: 5px;
+
+    color: var(--subtle);
+
+    font-size: 9px;
+    font-weight: 400;
+
+    letter-spacing: normal;
+}
+
+
+/* Main content container. */
+.content {
+    max-width: 1600px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+}
+
+
+/* ================================================================ */
+/* PAGE HEADER */
+/* ================================================================ */
+
+
+/* Page heading layout. */
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+
+/* Small heading label. */
+.eyebrow {
+    margin-bottom: 7px;
+
+    color: var(--blue);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+}
+
+
+/* Main dashboard heading. */
+.page-heading h2 {
+    font-size: 24px;
+    font-weight: 700;
+
+    letter-spacing: -0.025em;
+}
+
+
+/* Dashboard description. */
+.page-heading p {
+    margin-top: 6px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* UTC clock. */
+.clock {
+    text-align: right;
+}
+
+
+/* Clock time. */
+.clock strong {
+    display: block;
+
+    color: var(--text);
+
+    font-family:
+        "JetBrains Mono",
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 19px;
+}
+
+
+/* Clock timezone. */
+.clock span {
+    color: var(--muted);
+
+    font-size: 9px;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* ================================================================ */
+/* METRIC CARDS */
+/* ================================================================ */
+
+
+/* Four-card metric grid. */
+.metric-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+
+/* Individual metric card. */
+.metric-card {
+    min-height: 130px;
+
+    padding: 18px 20px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+}
+
+
+/* Critical card accent. */
+.critical-card {
+    border-top: 2px solid var(--critical);
+}
+
+
+/* Metric card top section. */
+.metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+
+/* Metric label. */
+.metric-label {
+    color: var(--muted);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+}
+
+
+/* Metric icon. */
+.metric-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    border-radius: 5px;
+
+    font-size: 12px;
     font-weight: 700;
 }
 
 
-/* Give critical severity its own subtle border. */
-.critical-summary {
-    border-left: 3px solid var(--critical);
+/* Blue icon. */
+.metric-icon.blue {
+    background: var(--blue-soft);
+
+    color: var(--blue);
 }
 
 
-/* Give critical text its color. */
-.critical-summary span,
-.critical-summary strong {
-    color: var(--critical);
-}
+/* Orange icon. */
+.metric-icon.orange {
+    background: var(--high-soft);
 
-
-/* Give high severity its own subtle border. */
-.high-summary {
-    border-left: 3px solid var(--high);
-}
-
-
-/* Give high text its color. */
-.high-summary span,
-.high-summary strong {
     color: var(--high);
 }
 
 
-/* Allow the alert table to scroll horizontally if necessary. */
+/* Red icon. */
+.metric-icon.red {
+    background: var(--critical-soft);
+
+    color: var(--critical);
+}
+
+
+/* Yellow icon. */
+.metric-icon.yellow {
+    background: var(--high-soft);
+
+    color: var(--high);
+}
+
+
+/* Main metric number. */
+.metric-value {
+    display: block;
+
+    font-size: 29px;
+    font-weight: 700;
+
+    line-height: 1;
+}
+
+
+/* Critical number. */
+.critical-value {
+    color: var(--critical);
+}
+
+
+/* High number. */
+.high-value {
+    color: var(--high);
+}
+
+
+/* Metric description. */
+.metric-description {
+    display: block;
+
+    margin-top: 11px;
+
+    color: var(--subtle);
+
+    font-size: 9px;
+}
+
+
+/* ================================================================ */
+/* ANALYTICS */
+/* ================================================================ */
+
+
+/* Two-column analytics layout. */
+.analytics-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+
+/* Generic dashboard panel. */
+.panel {
+    overflow: hidden;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+}
+
+
+/* Panel header. */
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 62px;
+
+    padding: 14px 17px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* Panel title. */
+.panel-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* Panel description. */
+.panel-header p {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+
+/* Severity content. */
+.severity-panel {
+    padding: 18px;
+}
+
+
+/* Severity row. */
+.severity-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+}
+
+
+/* Severity name. */
+.severity-info {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #a8b5c6;
+
+    font-size: 10px;
+}
+
+
+/* Severity dot. */
+.severity-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+}
+
+
+/* Critical dot. */
+.critical-dot {
+    background: var(--critical);
+
+    box-shadow: 0 0 7px rgba(255, 79, 100, 0.5);
+}
+
+
+/* High dot. */
+.high-dot {
+    background: var(--high);
+
+    box-shadow: 0 0 7px rgba(255, 171, 61, 0.5);
+}
+
+
+/* Severity number. */
+.severity-row strong {
+    font-size: 17px;
+}
+
+
+/* Severity bar background. */
+.severity-bar {
+    height: 5px;
+
+    margin-bottom: 17px;
+
+    overflow: hidden;
+
+    border-radius: 4px;
+
+    background: #182333;
+}
+
+
+/* Severity bar fill. */
+.severity-fill {
+    height: 100%;
+
+    width: 0;
+
+    border-radius: inherit;
+
+    transition: width 0.5s ease;
+}
+
+
+/* Critical bar. */
+.critical-fill {
+    background: var(--critical);
+}
+
+
+/* High bar. */
+.high-fill {
+    background: var(--high);
+}
+
+
+/* Severity total. */
+.severity-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 3px;
+    padding-top: 13px;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+
+/* Severity total number. */
+.severity-total strong {
+    color: var(--text);
+
+    font-size: 13px;
+}
+
+
+/* Detection activity list. */
+.detection-list {
+    padding: 5px 17px;
+}
+
+
+/* Detection rule row. */
+.detection-item {
+    display: grid;
+
+    grid-template-columns: 1fr 110px 35px;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 43px;
+
+    border-bottom: 1px solid rgba(32, 48, 71, 0.7);
+}
+
+
+/* Remove final detection border. */
+.detection-item:last-child {
+    border-bottom: none;
+}
+
+
+/* Detection rule name. */
+.detection-name {
+    overflow: hidden;
+
+    color: #c4cfdd;
+
+    font-family:
+        "JetBrains Mono",
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 9px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* Detection bar. */
+.detection-bar {
+    height: 5px;
+
+    overflow: hidden;
+
+    border-radius: 3px;
+
+    background: #192536;
+}
+
+
+/* Detection bar fill. */
+.detection-bar-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--blue);
+
+    transition: width 0.5s ease;
+}
+
+
+/* Detection count. */
+.detection-count {
+    color: var(--muted);
+
+    font-size: 9px;
+
+    text-align: right;
+}
+
+
+/* Loading text. */
+.loading-small {
+    padding: 20px 0;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+/* ================================================================ */
+/* ALERT TABLE */
+/* ================================================================ */
+
+
+/* Alert panel. */
+.alerts-panel {
+    margin-bottom: 18px;
+}
+
+
+/* Alert header. */
+.alerts-header {
+    min-height: 70px;
+}
+
+
+/* Search box. */
+.search-box {
+    display: flex;
+    align-items: center;
+
+    width: 210px;
+    height: 31px;
+
+    gap: 7px;
+
+    padding: 0 10px;
+
+    background: #0a111b;
+
+    border: 1px solid var(--border);
+
+    border-radius: 5px;
+}
+
+
+/* Search icon. */
+.search-icon {
+    color: var(--subtle);
+
+    font-size: 15px;
+}
+
+
+/* Search input. */
+.search-box input {
+    width: 100%;
+
+    outline: none;
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-size: 10px;
+}
+
+
+/* Search placeholder. */
+.search-box input::placeholder {
+    color: var(--subtle);
+}
+
+
+/* Table scrolling area. */
 .table-wrapper {
     overflow-x: auto;
 }
 
 
-/* Make the alert table fill the panel. */
+/* Alert table. */
 table {
     width: 100%;
+
     border-collapse: collapse;
+
+    table-layout: auto;
 }
 
 
-/* Style table headings. */
+/* Table headings. */
 th {
-    color: var(--muted);
+    padding: 11px 15px;
 
-    background: #0d1319;
+    background: #0b131f;
 
-    font-size: 10px;
-    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+
+    color: var(--subtle);
+
+    font-size: 8px;
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
 
     text-align: left;
+
     text-transform: uppercase;
 
-    letter-spacing: 0.09em;
-
-    padding: 12px 16px;
-
-    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
 }
 
 
-/* Style table cells. */
+/* Table cells. */
 td {
-    padding: 15px 16px;
+    padding: 13px 15px;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(32, 48, 71, 0.75);
 
-    font-size: 12px;
+    color: #a3afbf;
+
+    font-size: 9px;
 
     vertical-align: middle;
 }
 
 
-/* Remove the bottom border from the final row. */
-tr:last-child td {
-    border-bottom: none;
-}
-
-
-/* Highlight alert rows when the mouse moves over them. */
+/* Table hover effect. */
 tbody tr:hover {
-    background: var(--panel-hover);
+    background: rgba(77, 163, 255, 0.035);
 }
 
 
-/* Style the severity labels inside the alert table. */
+/* Severity badge. */
 .severity {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    min-width: 62px;
+    min-width: 60px;
 
-    padding: 5px 8px;
+    padding: 4px 7px;
 
     border-radius: 4px;
 
-    font-size: 9px;
+    font-size: 7px;
     font-weight: 700;
 
-    text-align: center;
-
     letter-spacing: 0.06em;
+
+    text-transform: uppercase;
 }
 
 
-/* Style critical alert badges. */
+/* Critical badge. */
 .severity-critical {
-    background: rgba(255, 77, 90, 0.10);
+    background: var(--critical-soft);
+
+    border: 1px solid rgba(255, 79, 100, 0.25);
 
     color: var(--critical);
-
-    border: 1px solid rgba(255, 77, 90, 0.28);
 }
 
 
-/* Style high alert badges. */
+/* High badge. */
 .severity-high {
-    background: rgba(255, 159, 67, 0.10);
+    background: var(--high-soft);
+
+    border: 1px solid rgba(255, 171, 61, 0.25);
 
     color: var(--high);
-
-    border: 1px solid rgba(255, 159, 67, 0.28);
 }
 
 
-/* Style medium alert badges. */
+/* Medium badge. */
 .severity-medium {
-    background: rgba(246, 201, 69, 0.10);
+    background: rgba(246, 201, 69, 0.1);
 
-    color: var(--medium);
+    border: 1px solid rgba(246, 201, 69, 0.25);
 
-    border: 1px solid rgba(246, 201, 69, 0.28);
+    color: #f6c945;
 }
 
 
-/* Style low alert badges. */
+/* Low badge. */
 .severity-low {
-    background: rgba(77, 182, 255, 0.10);
+    background: var(--blue-soft);
 
-    color: var(--low);
+    border: 1px solid rgba(77, 163, 255, 0.25);
 
-    border: 1px solid rgba(77, 182, 255, 0.28);
+    color: var(--blue);
 }
 
 
-/* Make detection rule names easier to identify. */
+/* Detection rule cell. */
 .rule {
-    color: var(--text);
+    color: #d4deea;
 
+    font-family:
+        "JetBrains Mono",
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 8px;
     font-weight: 600;
 
     white-space: nowrap;
 }
 
 
-/* Style alert messages. */
+/* Message cell. */
 .message {
+    max-width: 430px;
+
     color: var(--muted);
 
-    max-width: 480px;
-
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 
-/* Style host, process, and timestamp information. */
+/* Metadata cells. */
 .metadata {
     color: var(--muted);
 
@@ -417,7 +1180,16 @@ tbody tr:hover {
 }
 
 
-/* Style loading and empty states. */
+/* Timestamp column width. */
+th:last-child,
+td:last-child {
+    min-width: 210px;
+
+    white-space: nowrap;
+}
+
+
+/* Empty table state. */
 .empty-state {
     padding: 30px;
 
@@ -427,41 +1199,183 @@ tbody tr:hover {
 }
 
 
-/* Adjust the dashboard for smaller screens. */
-@media (max-width: 900px) {
+/* ================================================================ */
+/* SIEM PIPELINE */
+/* ================================================================ */
 
-    .dashboard {
-        padding: 24px;
+
+/* Pipeline layout. */
+.pipeline {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 20px;
+}
+
+
+/* Pipeline step. */
+.pipeline-step {
+    flex: 1;
+
+    min-height: 75px;
+
+    padding: 12px;
+
+    background: #0b131f;
+
+    border: 1px solid var(--border);
+
+    border-radius: 6px;
+}
+
+
+/* Pipeline number. */
+.pipeline-number {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--blue);
+
+    font-family:
+        "JetBrains Mono",
+        monospace;
+
+    font-size: 8px;
+
+    font-weight: 700;
+}
+
+
+/* Pipeline title. */
+.pipeline-step strong {
+    display: block;
+
+    color: #cbd6e4;
+
+    font-size: 10px;
+}
+
+
+/* Pipeline description. */
+.pipeline-step small {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--subtle);
+
+    font-size: 8px;
+}
+
+
+/* Pipeline arrow. */
+.pipeline-arrow {
+    color: var(--subtle);
+
+    font-size: 14px;
+}
+
+
+/* ================================================================ */
+/* RESPONSIVE */
+/* ================================================================ */
+
+
+/* Tablet layout. */
+@media (max-width: 1100px) {
+
+    .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .severity-grid {
+    .analytics-grid {
         grid-template-columns: 1fr;
     }
 
 }
 
 
-/* Adjust the header for mobile screens. */
-@media (max-width: 600px) {
+/* Smaller screens. */
+@media (max-width: 800px) {
 
-    .dashboard {
-        padding: 16px;
+    .sidebar {
+        width: 70px;
     }
 
-    .header {
+    .brand {
+        justify-content: center;
+
+        padding: 18px 10px;
+    }
+
+    .brand > div:last-child,
+    .nav-label,
+    .nav-item span:not(.nav-icon),
+    .sidebar-footer {
+        display: none;
+    }
+
+    .nav-item {
+        justify-content: center;
+    }
+
+    .nav-item.active::before {
+        left: -10px;
+    }
+
+    .main {
+        width: calc(100% - 70px);
+
+        margin-left: 70px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .pipeline {
+        overflow-x: auto;
+    }
+
+    .pipeline-step {
+        min-width: 130px;
+    }
+
+}
+
+
+/* Mobile layout. */
+@media (max-width: 600px) {
+
+    .metric-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-heading {
         align-items: flex-start;
 
         flex-direction: column;
 
-        gap: 16px;
+        gap: 18px;
     }
 
-    .stat-number {
-        font-size: 30px;
+    .clock {
+        text-align: left;
+    }
+
+    .alerts-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .search-box {
+        width: 100%;
     }
 
 }
