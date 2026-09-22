@@ -12,6 +12,7 @@ async function loadStatistics() {
             "http://127.0.0.1:8000/statistics"
         );
 
+
         // Convert the API response into JavaScript data.
         const data = await response.json();
 
@@ -387,6 +388,136 @@ function renderDetectionActivity(alerts) {
 }
 
 
+// Load event activity from the SIEM API.
+async function loadEventActivity() {
+
+    try {
+
+        // Request event activity from the SIEM API.
+        const response = await fetch(
+            "http://127.0.0.1:8000/statistics/activity"
+        );
+
+
+        // Stop when the API returns an error.
+        if (!response.ok) {
+            throw new Error(
+                `API returned ${response.status}`
+            );
+        }
+
+
+        // Convert the API response into JavaScript data.
+        const activity = await response.json();
+
+
+        // Find the activity chart containers.
+        const barsContainer =
+            document.getElementById("activity-bars");
+
+        const labelsContainer =
+            document.getElementById("activity-labels");
+
+
+        // Clear the existing chart.
+        barsContainer.innerHTML = "";
+        labelsContainer.innerHTML = "";
+
+
+        // Show an empty state when no activity exists.
+        if (activity.length === 0) {
+
+            barsContainer.innerHTML = `
+                <div class="loading-small">
+                    No event activity available.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        // Find the largest event count.
+        const maximumCount =
+            Math.max(
+                ...activity.map(item => item.count),
+                1
+            );
+
+
+        // Create a bar for every hourly bucket.
+        activity.forEach((item, index) => {
+
+            // Calculate the bar height.
+            const height =
+                item.count === 0
+                    ? 2
+                    : (item.count / maximumCount) * 100;
+
+
+            // Create the activity bar.
+            const bar =
+                document.createElement("div");
+
+
+            // Apply the activity bar styling.
+            bar.className = "activity-bar";
+
+
+            // Set the bar height.
+            bar.style.height = `${height}%`;
+
+
+            // Make empty hours visually smaller.
+            if (item.count === 0) {
+                bar.style.opacity = "0.25";
+            }
+
+
+            // Show event count when hovering.
+            bar.title =
+                `${item.hour} UTC — ${item.count} events`;
+
+
+            // Add the bar to the chart.
+            barsContainer.appendChild(bar);
+
+
+            // Create the time label.
+            const label =
+                document.createElement("span");
+
+
+            // Apply the label styling.
+            label.className = "activity-label";
+
+
+            // Only show every fourth hour.
+            if (index % 4 === 0) {
+
+                label.textContent =
+                    item.hour.slice(11, 16);
+
+            }
+
+
+            // Add the label to the chart.
+            labelsContainer.appendChild(label);
+
+        });
+
+    } catch (error) {
+
+        // Log an error if the API cannot be reached.
+        console.error(
+            "Failed to load event activity:",
+            error
+        );
+
+    }
+}
+
+
 // Search alerts using the search field.
 function searchAlerts() {
 
@@ -486,6 +617,10 @@ async function refreshDashboard() {
 
     // Load the latest alerts.
     await loadAlerts();
+
+
+    // Load event activity.
+    await loadEventActivity();
 
 
     // Update the dashboard clock.

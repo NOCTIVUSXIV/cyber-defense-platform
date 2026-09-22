@@ -959,6 +959,91 @@ a {
 
 
 /* ================================================================ */
+/* EVENT ACTIVITY */
+/* ================================================================ */
+
+
+/* Event activity panel. */
+.activity-panel {
+    min-height: 250px;
+}
+
+
+/* Event activity chart container. */
+.activity-chart {
+    height: 185px;
+
+    padding: 20px 17px 15px;
+}
+
+
+/* Event activity bars. */
+.activity-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 4px;
+
+    height: 135px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* Individual activity bar. */
+.activity-bar {
+    flex: 1;
+
+    min-width: 4px;
+
+    height: 0;
+
+    border-radius: 3px 3px 0 0;
+
+    background: var(--blue);
+
+    opacity: 0.8;
+
+    transition: height 0.4s ease;
+}
+
+
+/* Activity bar hover state. */
+.activity-bar:hover {
+    opacity: 1;
+}
+
+
+/* Activity time labels. */
+.activity-labels {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 4px;
+
+    margin-top: 7px;
+}
+
+
+/* Individual activity label. */
+.activity-label {
+    flex: 1;
+
+    overflow: hidden;
+
+    color: var(--subtle);
+
+    font-size: 7px;
+
+    text-align: center;
+
+    white-space: nowrap;
+}
+
+
+/* ================================================================ */
 /* ALERT TABLE */
 /* ================================================================ */
 

@@ -84,7 +84,7 @@ def insert_event(event):
 
 
 def insert_alert(alert):
-    # Open the existing SIEM database.
+    # Open the SIEM database.
     connection = sqlite3.connect(DATABASE_PATH)
 
     # Create a cursor for executing SQL commands.
@@ -316,6 +316,63 @@ def get_alert_counts():
     return counts
 
 
+def get_event_activity():
+    # Open the SIEM database.
+    connection = sqlite3.connect(DATABASE_PATH)
+
+    # Create a cursor for executing SQL commands.
+    cursor = connection.cursor()
+
+    # Generate every hour from the last 24 hours.
+    cursor.execute("""
+        WITH RECURSIVE hours(hour) AS (
+            SELECT strftime(
+                '%Y-%m-%d %H:00:00',
+                'now',
+                '-23 hours'
+            )
+
+            UNION ALL
+
+            SELECT strftime(
+                '%Y-%m-%d %H:00:00',
+                datetime(hour, '+1 hour')
+            )
+            FROM hours
+            WHERE hour < strftime(
+                '%Y-%m-%d %H:00:00',
+                'now'
+            )
+        )
+
+        SELECT
+            hours.hour,
+            COUNT(events.id) AS count
+        FROM hours
+        LEFT JOIN events
+            ON strftime(
+                '%Y-%m-%d %H:00:00',
+                events.timestamp
+            ) = hours.hour
+        GROUP BY hours.hour
+        ORDER BY hours.hour ASC
+    """)
+
+    # Convert database results into dictionaries.
+    activity = [
+        {
+            "hour": row[0],
+            "count": row[1],
+        }
+        for row in cursor.fetchall()
+    ]
+
+    # Close the database connection.
+    connection.close()
+
+    return activity
+
+
 # Test database functions when this file is executed directly.
 if __name__ == "__main__":
     create_database()
@@ -325,3 +382,4 @@ if __name__ == "__main__":
     print(f"High alerts: {len(get_alerts_by_severity('HIGH'))}")
     print(f"Event counts: {get_event_counts()}")
     print(f"Alert counts: {get_alert_counts()}")
+    print(f"Event activity: {get_event_activity()}")
