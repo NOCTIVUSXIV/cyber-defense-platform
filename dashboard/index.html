@@ -129,7 +129,7 @@
                     </span>
 
 
-                    <a href="#alerts" class="nav-item">
+                    <a href="#events" class="nav-item">
 
                         <span class="nav-icon">⌕</span>
 
@@ -535,47 +535,6 @@
 
 
                 <!-- ================================================== -->
-                <!-- EVENT ACTIVITY                                      -->
-                <!-- ================================================== -->
-
-                <section class="panel activity-panel">
-
-                    <div class="panel-header">
-
-                        <div>
-
-                            <h3>
-                                Event Activity
-                            </h3>
-
-                            <p>
-                                Events ingested during the last 24 hours
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="activity-chart">
-
-                        <div
-                            class="activity-bars"
-                            id="activity-bars"
-                        ></div>
-
-
-                        <div
-                            class="activity-labels"
-                            id="activity-labels"
-                        ></div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- ================================================== -->
                 <!-- RECENT ALERTS                                      -->
                 <!-- ================================================== -->
 
@@ -676,10 +635,113 @@
 
 
                 <!-- ================================================== -->
-                <!-- SIEM PIPELINE                                      -->
+                <!-- EVENT INVESTIGATION                                -->
                 <!-- ================================================== -->
 
                 <section class="panel events-panel" id="events">
+
+                    <div class="panel-header events-header">
+
+                        <div>
+
+                            <h3>
+                                Event Investigation
+                            </h3>
+
+                            <p>
+                                Recent events ingested by the SIEM
+                            </p>
+
+                        </div>
+
+
+                        <!-- Event search. -->
+                        <div class="search-box">
+
+                            <span class="search-icon">
+                                ⌕
+                            </span>
+
+                            <input
+                                type="text"
+                                id="event-search"
+                                placeholder="Search events..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Event table. -->
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Severity
+                                    </th>
+
+                                    <th>
+                                        Message
+                                    </th>
+
+                                    <th>
+                                        Host
+                                    </th>
+
+                                    <th>
+                                        Process
+                                    </th>
+
+                                    <th>
+                                        PID
+                                    </th>
+
+                                    <th>
+                                        Source
+                                    </th>
+
+                                    <th>
+                                        Time (UTC)
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="events-container">
+
+                                <tr>
+
+                                    <td
+                                        colspan="7"
+                                        class="empty-state"
+                                    >
+                                        Loading events...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================== -->
+                <!-- SIEM PIPELINE                                      -->
+                <!-- ================================================== -->
+
+                <section class="panel">
 
                     <div class="panel-header">
 

@@ -157,6 +157,35 @@ a {
     padding: 24px 12px;
 
     overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: #304766 transparent;
+}
+
+
+/* Style the sidebar scrollbar. */
+.navigation::-webkit-scrollbar {
+    width: 7px;
+}
+
+
+/* Sidebar scrollbar track. */
+.navigation::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* Sidebar scrollbar thumb. */
+.navigation::-webkit-scrollbar-thumb {
+    background: #304766;
+
+    border-radius: 8px;
+}
+
+
+/* Sidebar scrollbar hover state. */
+.navigation::-webkit-scrollbar-thumb:hover {
+    background: #4d6a8e;
 }
 
 
@@ -1110,9 +1139,74 @@ a {
 }
 
 
-/* Table scrolling area. */
-.table-wrapper {
+/* Scroll window for Recent Security Alerts. */
+#alerts .table-wrapper {
+    max-height: 320px;
+
     overflow-x: auto;
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: #304766 #0a111b;
+}
+
+
+/* Add spacing below Event Investigation. */
+.events-panel {
+    margin-bottom: 18px;
+}
+
+
+/* Scroll window for Event Investigation. */
+.events-panel .table-wrapper {
+    max-height: 500px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: #304766 #0a111b;
+}
+
+
+/* Style the table scrollbar. */
+.table-wrapper::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+
+/* Style the table scrollbar track. */
+.table-wrapper::-webkit-scrollbar-track {
+    background: #0a111b;
+
+    border-radius: 8px;
+}
+
+
+/* Style the table scrollbar thumb. */
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #304766;
+
+    border: 1px solid #0a111b;
+
+    border-radius: 8px;
+}
+
+
+/* Highlight the table scrollbar thumb on hover. */
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #4d6a8e;
+}
+
+
+/* Keep table headers visible while scrolling. */
+.table-wrapper th {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
 }
 
 
@@ -1287,6 +1381,12 @@ td:last-child {
 /* ================================================================ */
 /* SIEM PIPELINE */
 /* ================================================================ */
+
+
+/* Keep the SIEM Pipeline separated from Event Investigation. */
+.pipeline-panel {
+    margin-top: 0;
+}
 
 
 /* Pipeline layout. */

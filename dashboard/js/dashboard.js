@@ -2,6 +2,10 @@
 let currentAlerts = [];
 
 
+// Store the latest events so the investigation search can reuse them.
+let currentEvents = [];
+
+
 // Load event and alert statistics from the SIEM API.
 async function loadStatistics() {
 
@@ -11,6 +15,14 @@ async function loadStatistics() {
         const response = await fetch(
             "http://127.0.0.1:8000/statistics"
         );
+
+
+        // Stop when the API returns an error.
+        if (!response.ok) {
+            throw new Error(
+                `API returned ${response.status}`
+            );
+        }
 
 
         // Convert the API response into JavaScript data.
@@ -190,8 +202,8 @@ function renderAlerts(alerts) {
     }
 
 
-    // Display the latest 10 alerts.
-    alerts.slice(0, 10).forEach(alert => {
+    // Display all alerts returned by the API.
+    alerts.forEach(alert => {
 
         // Create a table row.
         const row =
@@ -253,6 +265,14 @@ async function loadAlerts() {
         );
 
 
+        // Stop when the API returns an error.
+        if (!response.ok) {
+            throw new Error(
+                `API returned ${response.status}`
+            );
+        }
+
+
         // Convert the API response into JavaScript data.
         const alerts = await response.json();
 
@@ -261,8 +281,25 @@ async function loadAlerts() {
         currentAlerts = alerts;
 
 
-        // Display the alerts.
-        renderAlerts(currentAlerts);
+        // Check whether an alert search is active.
+        const searchInput =
+            document.getElementById("alert-search");
+
+
+        // Reapply the active alert search after refresh.
+        if (
+            searchInput &&
+            searchInput.value.trim()
+        ) {
+
+            searchAlerts();
+
+        } else {
+
+            // Display all loaded alerts.
+            renderAlerts(currentAlerts);
+
+        }
 
 
         // Update detection activity.
@@ -518,20 +555,167 @@ async function loadEventActivity() {
 }
 
 
-// Search alerts using the search field.
+// Display events inside the investigation table.
+function renderEvents(events) {
+
+    // Find the event table body.
+    const container =
+        document.getElementById("events-container");
+
+
+    // Clear the current table contents.
+    container.innerHTML = "";
+
+
+    // Show an empty state when no events match.
+    if (events.length === 0) {
+
+        container.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    No matching events found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    // Display all events returned by the API.
+    events.forEach(event => {
+
+        // Create a table row.
+        const row =
+            document.createElement("tr");
+
+
+        // Convert severity to a readable value.
+        const severity =
+            event.severity || "-";
+
+
+        // Convert severity to a CSS-friendly class.
+        const severityClass =
+            String(severity).toLowerCase();
+
+
+        // Add event information to the table.
+        row.innerHTML = `
+
+            <td>
+                <span class="severity severity-${severityClass}">
+                    ${severity}
+                </span>
+            </td>
+
+            <td class="message">
+                ${event.message || "-"}
+            </td>
+
+            <td class="metadata">
+                ${event.hostname || "-"}
+            </td>
+
+            <td class="metadata">
+                ${event.process || "-"}
+            </td>
+
+            <td class="metadata">
+                ${event.pid || "-"}
+            </td>
+
+            <td class="metadata">
+                ${event.source || "-"}
+            </td>
+
+            <td class="metadata">
+                ${formatTimestamp(event.timestamp)}
+            </td>
+
+        `;
+
+
+        // Add the row to the event table.
+        container.appendChild(row);
+
+    });
+}
+
+
+// Load recent SIEM events from the API.
+async function loadEvents() {
+
+    try {
+
+        // Request recent events from the SIEM API.
+        const response = await fetch(
+            "http://127.0.0.1:8000/events"
+        );
+
+
+        // Stop when the API returns an error.
+        if (!response.ok) {
+            throw new Error(
+                `API returned ${response.status}`
+            );
+        }
+
+
+        // Convert the API response into JavaScript data.
+        const events = await response.json();
+
+
+        // Store events for the search feature.
+        currentEvents = events;
+
+
+        // Check whether an investigation search is active.
+        const searchInput =
+            document.getElementById("event-search");
+
+
+        // Reapply the active search after automatic refresh.
+        if (
+            searchInput &&
+            searchInput.value.trim()
+        ) {
+
+            searchEvents();
+
+        } else {
+
+            // Display all loaded events.
+            renderEvents(currentEvents);
+
+        }
+
+    } catch (error) {
+
+        // Log an error if the API cannot be reached.
+        console.error(
+            "Failed to load events:",
+            error
+        );
+
+    }
+}
+
+
+// Search alerts using exact substring position.
 function searchAlerts() {
 
-    // Get the search input.
+    // Get the alert search input.
     const searchInput =
         document.getElementById("alert-search");
 
 
-    // Convert the search text to lowercase.
+    // Convert the search text into lowercase.
     const searchTerm =
         searchInput.value.toLowerCase().trim();
 
 
-    // Show all alerts if the search is empty.
+    // Show all alerts when the search is empty.
     if (!searchTerm) {
 
         renderAlerts(currentAlerts);
@@ -540,35 +724,182 @@ function searchAlerts() {
     }
 
 
-    // Search through multiple alert fields.
+    // Store alerts that contain the exact search sequence.
+    const matchingAlerts = [];
+
+
+    // Check every alert.
+    currentAlerts.forEach((alert, alertIndex) => {
+
+        // Combine searchable alert fields.
+        const searchableText = [
+
+            alert.severity,
+            alert.rule,
+            alert.message,
+            alert.hostname,
+            alert.process
+
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+        // Find the first exact occurrence of the search text.
+        const matchPosition =
+            searchableText.indexOf(searchTerm);
+
+
+        // Ignore alerts that do not contain the exact sequence.
+        if (matchPosition === -1) {
+            return;
+        }
+
+
+        // Store the alert and its match position.
+        matchingAlerts.push({
+            alert,
+            matchPosition,
+            alertIndex
+        });
+
+    });
+
+
+    // Sort alerts by the position of the search sequence.
+    matchingAlerts.sort(
+        (a, b) => {
+
+            // Earlier matches come first.
+            if (
+                a.matchPosition !==
+                b.matchPosition
+            ) {
+
+                return (
+                    a.matchPosition -
+                    b.matchPosition
+                );
+
+            }
+
+
+            // Preserve the original alert order for equal positions.
+            return (
+                a.alertIndex -
+                b.alertIndex
+            );
+
+        }
+    );
+
+
+    // Extract the sorted alerts.
     const filteredAlerts =
-        currentAlerts.filter(alert => {
+        matchingAlerts.map(
+            item => item.alert
+        );
 
-            // Combine searchable alert fields.
-            const searchableText = [
 
-                alert.severity,
-                alert.rule,
-                alert.message,
-                alert.hostname,
-                alert.process
+    // Display the ranked search results.
+    renderAlerts(filteredAlerts);
+}
 
-            ]
-                .filter(Boolean)
-                .join(" ")
+
+// Search events using exact substring position.
+function searchEvents() {
+
+    // Get the event search input.
+    const searchInput =
+        document.getElementById("event-search");
+
+
+    // Convert the search text into lowercase.
+    const searchTerm =
+        searchInput.value.toLowerCase().trim();
+
+
+    // Show all events when the search is empty.
+    if (!searchTerm) {
+
+        renderEvents(currentEvents);
+
+        return;
+    }
+
+
+    // Store events that contain the exact search sequence.
+    const matchingEvents = [];
+
+
+    // Check every event.
+    currentEvents.forEach((event, eventIndex) => {
+
+        // Get the event message.
+        const message =
+            String(event.message || "")
                 .toLowerCase();
 
 
-            // Return alerts containing the search term.
-            return searchableText.includes(
-                searchTerm
-            );
+        // Find the first exact occurrence of the search text.
+        const matchPosition =
+            message.indexOf(searchTerm);
 
+
+        // Ignore events that do not contain the exact sequence.
+        if (matchPosition === -1) {
+            return;
+        }
+
+
+        // Store the event and its match position.
+        matchingEvents.push({
+            event,
+            matchPosition,
+            eventIndex
         });
 
+    });
 
-    // Display the filtered alerts.
-    renderAlerts(filteredAlerts);
+
+    // Sort events by the position of the search sequence.
+    matchingEvents.sort(
+        (a, b) => {
+
+            // Earlier matches come first.
+            if (
+                a.matchPosition !==
+                b.matchPosition
+            ) {
+
+                return (
+                    a.matchPosition -
+                    b.matchPosition
+                );
+
+            }
+
+
+            // Preserve the original event order for equal positions.
+            return (
+                a.eventIndex -
+                b.eventIndex
+            );
+
+        }
+    );
+
+
+    // Extract the sorted events.
+    const filteredEvents =
+        matchingEvents.map(
+            item => item.event
+        );
+
+
+    // Display the search results.
+    renderEvents(filteredEvents);
 }
 
 
@@ -619,6 +950,10 @@ async function refreshDashboard() {
     await loadAlerts();
 
 
+    // Load the latest events.
+    await loadEvents();
+
+
     // Load event activity.
     await loadEventActivity();
 
@@ -635,6 +970,15 @@ document.getElementById(
 ).addEventListener(
     "input",
     searchAlerts
+);
+
+
+// Listen for changes in the event search box.
+document.getElementById(
+    "event-search"
+).addEventListener(
+    "input",
+    searchEvents
 );
 
 
