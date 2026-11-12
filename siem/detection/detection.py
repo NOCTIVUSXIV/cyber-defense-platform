@@ -1,4 +1,39 @@
+
 from datetime import datetime  # Provides timestamp handling.
+
+
+# Check whether an event represents a failed SSH authentication.
+def is_failed_ssh(event):
+    message = (event.get("message") or "").lower()
+    process = (event.get("process") or "").lower()
+
+    ssh_process = process.startswith("sshd")
+    ssh_message = "sshd" in message
+
+    pam_failure = (
+        "authentication failure" in message
+        and (ssh_process or ssh_message)
+    )
+
+    password_failure = (
+        "failed password" in message
+        and (ssh_process or ssh_message)
+    )
+
+    return pam_failure or password_failure
+
+
+# Check whether an event represents a failed sudo authentication.
+def is_failed_sudo(event):
+    message = (event.get("message") or "").lower()
+    process = (event.get("process") or "").lower()
+
+    sudo_event = "sudo" in message or process == "sudo"
+
+    return (
+        sudo_event
+        and "authentication failure" in message
+    )
 
 
 # Detect events with a high system priority.
@@ -29,16 +64,11 @@ def detect_high_priority(event):
 
 # Detect a failed sudo authentication attempt.
 def detect_failed_sudo(event):
-    message = event.get("message")
-
-    if message is None:
-        return None
-
-    if "authentication failure" in message.lower():
+    if is_failed_sudo(event):
         return {
             "rule": "FAILED_SUDO_AUTHENTICATION",
             "severity": "HIGH",
-            "message": message,
+            "message": event.get("message"),
             "hostname": event.get("hostname"),
             "process": event.get("process"),
             "event_timestamp": event.get("timestamp"),
@@ -49,18 +79,11 @@ def detect_failed_sudo(event):
 
 # Detect a failed SSH authentication attempt.
 def detect_failed_ssh(event):
-    message = event.get("message")
-
-    if message is None:
-        return None
-
-    message_lower = message.lower()
-
-    if "sshd" in message_lower and "failed password" in message_lower:
+    if is_failed_ssh(event):
         return {
             "rule": "FAILED_SSH_AUTHENTICATION",
             "severity": "HIGH",
-            "message": message,
+            "message": event.get("message"),
             "hostname": event.get("hostname"),
             "process": event.get("process"),
             "event_timestamp": event.get("timestamp"),
@@ -74,31 +97,29 @@ def detect_repeated_failed_sudo(event_history):
     failed_events = []
 
     for event in event_history:
-        message = event.get("message")
         timestamp = event.get("timestamp")
 
-        if message and "authentication failure" in message.lower():
-            if timestamp:
-                try:
-                    event_time = datetime.fromisoformat(timestamp)
+        if not is_failed_sudo(event) or not timestamp:
+            continue
 
-                except ValueError:
-                    continue
+        try:
+            event_time = datetime.fromisoformat(timestamp)
 
-                failed_events.append((event_time, event))
+        except (TypeError, ValueError):
+            continue
+
+        failed_events.append((event_time, event))
 
     if len(failed_events) < 3:
         return None
 
     latest_time, latest_event = failed_events[-1]
 
-    recent_failures = []
-
-    for event_time, event in failed_events:
-        time_difference = latest_time - event_time
-
-        if 0 <= time_difference.total_seconds() <= 300:
-            recent_failures.append(event)
+    recent_failures = [
+        event
+        for event_time, event in failed_events
+        if 0 <= (latest_time - event_time).total_seconds() <= 300
+    ]
 
     if len(recent_failures) >= 3:
         return {
@@ -118,35 +139,29 @@ def detect_repeated_failed_ssh(event_history):
     failed_events = []
 
     for event in event_history:
-        message = event.get("message")
         timestamp = event.get("timestamp")
 
-        if message is None or timestamp is None:
+        if not is_failed_ssh(event) or not timestamp:
             continue
 
-        message_lower = message.lower()
+        try:
+            event_time = datetime.fromisoformat(timestamp)
 
-        if "sshd" in message_lower and "failed password" in message_lower:
-            try:
-                event_time = datetime.fromisoformat(timestamp)
+        except (TypeError, ValueError):
+            continue
 
-            except ValueError:
-                continue
-
-            failed_events.append((event_time, event))
+        failed_events.append((event_time, event))
 
     if len(failed_events) < 3:
         return None
 
     latest_time, latest_event = failed_events[-1]
 
-    recent_failures = []
-
-    for event_time, event in failed_events:
-        time_difference = latest_time - event_time
-
-        if 0 <= time_difference.total_seconds() <= 300:
-            recent_failures.append(event)
+    recent_failures = [
+        event
+        for event_time, event in failed_events
+        if 0 <= (latest_time - event_time).total_seconds() <= 300
+    ]
 
     if len(recent_failures) >= 3:
         return {
@@ -205,26 +220,30 @@ if __name__ == "__main__":
         {
             "timestamp": "2026-09-17T00:00:00+00:00",
             "severity": "5",
-            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
+            "message": "pam_unix(sshd:auth): authentication failure",
             "hostname": "pranav-arch",
-            "process": "sshd",
+            "process": "sshd-session",
         },
         {
             "timestamp": "2026-09-17T00:02:00+00:00",
             "severity": "5",
-            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
+            "message": "pam_unix(sshd:auth): authentication failure",
             "hostname": "pranav-arch",
-            "process": "sshd",
+            "process": "sshd-session",
         },
         {
             "timestamp": "2026-09-17T00:04:00+00:00",
             "severity": "5",
-            "message": "sshd: Failed password for invalid user test from 192.168.1.50",
+            "message": "pam_unix(sshd:auth): authentication failure",
             "hostname": "pranav-arch",
-            "process": "sshd",
+            "process": "sshd-session",
         },
     ]
 
-    alerts = detect_correlations(test_events)
+    print("Single-event detections:")
 
-    print(alerts)
+    for event in test_events:
+        print(detect_event(event))
+
+    print("\nCorrelation detections:")
+    print(detect_correlations(test_events))
